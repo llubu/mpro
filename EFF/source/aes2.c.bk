@@ -17,7 +17,7 @@
 # include <error.h>
 # include "debug.h"
 
-# define SIZE 1024
+# define SIZE 32
 
 int aes_init(unsigned char* pwd, unsigned int pwd_len, unsigned char * salt, EVP_CIPHER_CTX *e_ctx, EVP_CIPHER_CTX *d_ctx)
 {
