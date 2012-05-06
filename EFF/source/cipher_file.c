@@ -18,6 +18,8 @@
 # include "aes_cipher.h"
 # include "cipher_helper.h"
 
+struct stat a;					/* structure to copy the file permission of the original file */
+
 int main()					/* Takes in input the file to be encrypted */
 {
 	char pwd[16];
@@ -64,7 +66,14 @@ int main()					/* Takes in input the file to be encrypted */
 		return 1;
 	}
 
+	if(fstat(in,&a) == -1)
+	{
+		perror("\n ERROR,CANT COPY FILE PERMISSION::");
+		return 1;
+	}
+
 /***************************start encrypting in file **************************************************************************************/
+
 	if(aes_init((unsigned char*)pwd,pwd_len,&en,&de))
 	{
 		dbug_p("ERROR_CIPHER INIT\n");
@@ -92,6 +101,12 @@ int main()					/* Takes in input the file to be encrypted */
 		dbug_p("ERROR,CANT CLEAN \n");
 		return 1;
 	}	
+	if(file_perres(ppath,&a))
+	{
+		dbug_p("\n ERROR,in restoring file per EE\n");
+		return 1;
+	}
+
 /************************** Decrypting *******************************************************************/
 	getchar();
 	if((in =open(ppath,O_RDONLY))<0)

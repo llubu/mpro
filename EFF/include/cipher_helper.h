@@ -7,5 +7,6 @@
 
 int replace(char *source,char *dest);			/* Replaces the destination file with the source file */
 int cleanup(char *path);				/* Deletes the temp file specified by char *path */
+int file_perres(char *path,struct stat *pt);				/* Restores the file permission of the file */
 
 #endif

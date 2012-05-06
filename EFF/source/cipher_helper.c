@@ -5,6 +5,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <sys/types.h>
+# include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
 # include "debug.h"
@@ -75,5 +76,25 @@ int cleanup(char *path)
 		wait(&status);
 		dbug_p("STATUS:%d",status);
 	}
+	return 0;
+}
+
+/************************************** restore original file permission ***************************************************/
+/* Called two times once after copying the encrypted file and then after decrypted file */
+
+int file_perres(char *path, struct stat *pt)
+{
+	if((chmod(path,(*pt).st_mode)) ==-1)
+	{
+		perror("\n ERROR in chmod::");
+		return 1;
+	}
+	
+	if((chown(path,(*pt).st_uid,(*pt).st_gid)) ==-1)		/* Needs *ROOT* privilege to change the owner */
+	{
+		perror("\n ERROR in chown::");
+		return 1;
+	}			
+	
 	return 0;
 }

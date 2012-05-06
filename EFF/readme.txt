@@ -5,4 +5,10 @@ This document will record all changes and progress of the project.
 
 basicxor.c v1.0 done: Uses simple xor operation on each byte of data (04-25-2012)
 aes2.c v1.0: done : Uses Openssl crypto API to implement AES256CBC symetric cipher (05-01-2012)
-aes3.c v1.1: ?? : Instead of creating a new encrypted and decrypted files it will replace the original file, improvement on usability
+cipher_file.c: v1.1: ?? : Instead of creating a new encrypted and decrypted files it will replace the original file, improvement on usability
+cipher_helper.c: v1.0 : ?? : Contains helper functions
+
+06-05-2012 :: File/Owner/Gropu Permission restore implemented
+	      Keystore ??	
+ 
+
