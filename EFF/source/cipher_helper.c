@@ -39,7 +39,7 @@ int replace(char * source,char * dest)			/* Replaces the char* source file with 
 	}
 	else{
 		wait(&status);
-		dbug_p("STATUS:%d:",status);
+		dbug_p("STATUS:%d:\n",status);
 	}   
         return 0;
 }
@@ -74,7 +74,7 @@ int cleanup(char *path)
 	}
 	else{
 		wait(&status);
-		dbug_p("STATUS:%d",status);
+		dbug_p("STATUS:%d:\n",status);
 	}
 	return 0;
 }

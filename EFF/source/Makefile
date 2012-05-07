@@ -6,8 +6,8 @@ SDIR = /home/abhi/mpro/EFF/source
 
 LIBS = lcrypto
 
-test: cipher_file.o cipher_helper.o aes_cipher.o 
-	$(CC) $(CFLAGS) cipher_file.o cipher_helper.o aes_cipher.o -$(LIBS) -I$(IDIR) -o test
+test: cipher_file.o cipher_helper.o aes_cipher.o keystore.o 
+	$(CC) $(CFLAGS) cipher_file.o cipher_helper.o aes_cipher.o keystore.o -$(LIBS) -I$(IDIR) -o test
 
 cipher_file.o: cipher_file.c
 	$(CC) $(CFLAGS) -c cipher_file.c -I$(IDIR)
@@ -17,6 +17,9 @@ cipher_helper.o: cipher_helper.c
 
 aes_cipher.o: aes_cipher.c
 	$(CC) $(CFLAGS) -c aes_cipher.c -I$(IDIR)
+
+keystore.o: keystore.c
+	$(CC) $(CFLAGS) -c keystore.c -I$(IDIR)
 
 clean:
 	rm test *.o
