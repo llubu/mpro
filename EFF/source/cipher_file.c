@@ -52,6 +52,7 @@ int main()					/* Takes in input the file to be encrypted */
 	dbug_p("PWD:%s: \n",pwd);
 
 	pwd_len = strlen((const char*) pwd)-1;
+	pwd[pwd_len] = '\0';
 
 	i =0;
 	while(pwd[i] != '\0' &&  pwd[i] != '\n') 			/* Password Complexity Rules */
@@ -60,9 +61,9 @@ int main()					/* Takes in input the file to be encrypted */
 		if(pwd[i] >=65 && pwd[i] <=90) ++ncaps;
 		++i;
 	}	
-	if((ndig <2) || (!ncaps) || (pwd_len <=6))
+	if((ndig <2) || (!ncaps) || (pwd_len <=6) || (pwd_len >30))
 	{
-		printf("\n Password Complexity not satisfied\n Min Pwd length 7: Atleast 1 Caps character : Atleast 2 digits \n");
+		printf("\n Password Complexity not satisfied\n Min Pwd length 7: Max Len 31 \n Atleast 1 Caps character : Atleast 2 digits \n");
 		return 1;
 	}
 	dbug_p("PWDLEN:%d:\n",pwd_len);

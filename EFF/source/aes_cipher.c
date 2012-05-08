@@ -23,11 +23,11 @@
 
 /*********************************** CIPHER INITIALIZATION FUNCTION *****************************************************/
 
-int aes_init(unsigned char* pwd, unsigned int pwd_len,EVP_CIPHER_CTX *e_ctx, EVP_CIPHER_CTX *d_ctx,int flag)	/* return 0:SUCCESS 1: ERROR */
+int aes_init(unsigned char* pwd,unsigned int pwd_len,EVP_CIPHER_CTX *e_ctx, EVP_CIPHER_CTX *d_ctx,int flag)	/* return 0:SUCCESS 1: ERROR */
 {
-        int i, rounds =5;                                       /* rounds */
-        unsigned char key[32], iv[32], salt[8];
-
+        int i, rounds =5;                                       /* increase rounds */
+        unsigned char key[32], iv[32], salt[8],data[32];
+	int data_len = 32;
 	switch(flag)
 	{    	
 		case 1:		/* ENCRYPTION INIT */
@@ -36,8 +36,13 @@ int aes_init(unsigned char* pwd, unsigned int pwd_len,EVP_CIPHER_CTX *e_ctx, EVP
 				perror("\n ERROR,SALT::");
 				return 1;
 			}
+			if(!(RAND_bytes(data,32)))
+			{
+				perror("\n ERROR,DATA::");
+				return 1;
+			}
 
-        		i = EVP_BytesToKey(EVP_aes_256_cbc(),EVP_sha1(),salt,pwd,pwd_len,rounds,key,iv);
+        		i = EVP_BytesToKey(EVP_aes_256_cbc(),EVP_sha1(),salt,data,data_len,rounds,key,iv);
 		        if(i != 32) 									/* Key len should be 256bits*/
         		{	   
                 		dbug_p("ERROR,Incorrect key size generated:%d:\n",i);
@@ -52,7 +57,7 @@ int aes_init(unsigned char* pwd, unsigned int pwd_len,EVP_CIPHER_CTX *e_ctx, EVP
 				return 1;
 			}
 
-			if((creat_keystore((unsigned char*) NULL,key,iv)))                              /* Creating keystore */
+			if((creat_keystore(pwd,pwd_len,key,iv)))                              /* Creating keystore */
 	                {   
         	                dbug_p("ERROR,cant creat KeyStore\n");
                 	        return 1;
@@ -61,7 +66,7 @@ int aes_init(unsigned char* pwd, unsigned int pwd_len,EVP_CIPHER_CTX *e_ctx, EVP
 	
 
 		case 2:			/* DECRYPTION INIT */
-			if((read_keystore(key,iv)))
+			if((read_keystore(pwd,pwd_len,key,iv)))
 			{
 				dbug_p("ERROR,in reading KeyStore\n");
 				return 1;

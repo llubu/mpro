@@ -5,7 +5,7 @@
 #ifndef KEYSTORE_H_INCLUDE
 #define KEYSTORE_H_INCLUDE
 
-int creat_keystore(unsigned char *pwd,unsigned char *k,unsigned char *v);				/* Creates the Keystore for a user */
-int read_keystore(unsigned char *k,unsigned char *v);
+int creat_keystore(unsigned char *pwd,unsigned int, unsigned char *k,unsigned char *v);				/* Creates the Keystore for a user */
+int read_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsigned char *v);			/* Read KS */
 
 #endif
