@@ -70,12 +70,13 @@ int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsi
 		return 1;
 	}
 
-	if(!(PKCS5_PBKDF2_HMAC_SHA1((const char *)pwd,pwd_len,salt,32,itr,32,pkey)))
+	if(!(PKCS5_PBKDF2_HMAC_SHA1((const char *)pwd,pwd_len,salt,32,itr,32,pkey)))	/* salt for session key */
 	{
 		perror("\n ERROR,PBKG2::");
 		return 1;
 	}
-	
+	dbug_p("Session Key:%s:\n",pkey);
+
 	if(!(RAND_bytes(salt_phash,32)))				/* salt to be used for pasword hash */
 	{
 		perror("\n ERROR,RAND_BYTES_CKS::");
@@ -93,7 +94,7 @@ int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsi
 		{
 			if(j<32)
 			{
-				psalt[i] = salt_phash[i];
+				psalt[i] = salt_phash[j];
 				++j;
 			}
 			else { dbug_p("In salt_phash_CKS:I:%d: J:%d::\n",i,j);break;}
@@ -126,6 +127,7 @@ int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsi
 	}
 
 	dbug_p("SHA256DIGLEN::%d::\n",SHA256_DIGEST_LENGTH);
+	dbug_p("MD:%s:\n",md);
 	
 	wr=0;
 	if((wr=write(ks,md,SHA256_DIGEST_LENGTH)) != SHA256_DIGEST_LENGTH)			/* 1 item in KS:: Writing Pwd Hash to KS (32 Bytes) */
@@ -178,7 +180,8 @@ int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsi
 		return 1;
 	}
 	dbug_p("OUTLEN_CREAT_KS_ENCUPDATE::%d::\n",outlen);
-	
+	dbug_p("KEY_WKS:%s:\n",outbuf);
+
 	if(write(ks,outbuf,outlen) != outlen)
 	{
 		dbug_p("ERROR,Cant write all bytes to KS\n");
@@ -190,8 +193,9 @@ int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsi
 		perror("\n ERROR,ENC_FINAL_CKS::");
 		return 1;
 	}
+	dbug_p("KEY_WKS_F:%s:\n",outbuf);
 
-	if(write(ks,outbuf,outlen) != outlen)						/* 5(Last) Item in KS:: Key final (?? Bytes) */
+	if(write(ks,outbuf,outlen) != outlen)						/* 5(Last) Item in KS:: Key final (48 Bytes) */
 	{
 		dbug_p("ERROR,Cant write bytes to KS_EFINAL\n");
 		return 1;
@@ -211,11 +215,12 @@ int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsi
 
 int read_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char* k, unsigned char *v)
 {
-	int ks,i,j,rd=0;
-	unsigned char uname[256],/*pkey[32],*/md[SHA256_DIGEST_LENGTH],r_phash[SHA256_DIGEST_LENGTH]; //salt[32];
+	int ks,i,j,rd=0,outlen=0;
+	unsigned char uname[256],s_key[32],md[SHA256_DIGEST_LENGTH],r_phash[SHA256_DIGEST_LENGTH],salt_s[32],salt_h[32],psalt[64];
+	unsigned char key_e[48],outbuf[SIZE+AES_BLOCK_SIZE];
 	char path[256]= "/home/";	
 
-//	EVP_CIPHER_CTX dp;
+	EVP_CIPHER_CTX dp;
 	SHA256_CTX sh;
 
 	if((getlogin_r((char *) uname,256)))
@@ -243,7 +248,7 @@ int read_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char* k, unsi
                 path[i+6] = '\0';
         }
 	
-	dbug_p("READPATH::%s::",path);
+	dbug_p("READPATH::%s::\n",path);
 	if((ks=open(path,O_RDONLY)) ==-1)
 	{
 		perror("\n ERROR,open ks file::");
@@ -251,15 +256,56 @@ int read_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char* k, unsi
 	}
 
 	rd=0;
-	if((rd=read(ks,r_phash,SHA256_DIGEST_LENGTH)) != SHA256_DIGEST_LENGTH)	/* Reading Stored Pwd Hash for comparison(20Bytes) */
+	if((rd=read(ks,r_phash,SHA256_DIGEST_LENGTH)) != SHA256_DIGEST_LENGTH)	/* Reading Stored Pwd Hash for comparison(32Bytes) */
 	{
 		perror("\n ERROR,Reading_PHASH_RKS::");
 		return 1;
 	}
+	dbug_p("r_phash_read:%s:\n",r_phash);
 	
+	rd=0;
+	if((rd=read(ks,salt_h,32)) != 32)
+	{
+		perror("\n ERROR,READ_SALT_H_READKS::");
+		return 1;
+	}
+	dbug_p("SALT_H_READ:%s:\n",salt_h);
+
+	i=0,j=0;
+        while(i<64)
+        {   
+                if(i<pwd_len)
+                {   
+                        psalt[i] = pwd[i];
+                }    
+                if(i>=pwd_len && i<64)                          /* Specify max pwd len in pwd input MAX_PWD_SIZE 31 */
+                {   
+                        if(j<32)
+                        {   
+                                psalt[i] = salt_h[j];
+                                ++j;
+                        }   
+                        else { 
+				dbug_p("In salt_phash_CKS:I:%d: J:%d::\n",i,j);
+				break;
+			}
+                }   
+                ++i;
+        }   
+	
+	if(i <64)
+        {
+                psalt[i] = '\0';
+        }
+        else { dbug_p("ERROR,PSALT LAST NULL_CKS\n"); return 1;}
+
+        dbug_p("II_PSALT_CKS::%d::J::%d::\n",i,j);
+        dbug_p("P+SALT::%s::\n",psalt);
+
+
 	SHA256_Init(&sh);
 
-	if(!SHA256_Update(&sh,pwd,pwd_len))
+	if(!SHA256_Update(&sh,psalt,i))
 	{
 		perror("\n ERROR,SHA256_U_RKS::");
 		return 1;
@@ -270,13 +316,88 @@ int read_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char* k, unsi
 		perror("\n ERROR,SHA256_F_RKS::");
 		return 1;
 	}
+	dbug_p("MD_RKS:%s:",md);
 
-	rd=0;
-	if((rd=read(ks,v,32)) != 32)						/* Reading IV */
+	/* Compare two pwd hashes r_phash & md */	
+	i=0,j=0;
+	for(i=0;i<32;i++)
 	{
-		perror("\n ERROR, reading iv::");
+//		dbug_p("IN P_COMP: MD[%d]=%c:  r_phash[%d]=%c:\n",i,md[i],i,r_phash[i]);
+		if(md[i] == r_phash[i])
+		{
+			++j;
+		}
+	}
+	dbug_p("AFTER PWD COMP J::%d::\n",j);
+	if(j!=32)								/* if has does not match return an ERROR */
+	{
+		dbug_p("ERROR,Incorrect password supplid:TERMINATING:\n");
 		return 1;
 	}
 	
+	rd=0;
+	if((rd=read(ks,salt_s,32)) != 32)						/* Reading Salt to generate session key */
+	{
+		perror("\n ERROR,Read_SALT_S_RKS::");
+		return 1;
+	}
+	
+	if(!(PKCS5_PBKDF2_HMAC_SHA1((const char *)pwd,pwd_len,salt_s,32,itr,32,s_key)))
+        {
+                perror("\n ERROR,PBKG2_RKS::");
+                return 1;
+        }
+	
+	rd=0;
+	if((rd=read(ks,v,32)) !=32)
+	{
+		perror("\n ERROR,READ_V_RKS::");
+		return 1;
+	}
+
+	rd=0;
+	if((rd=read(ks,key_e,48)) != 48)
+	{
+		perror("\n ERROR,Read_A_KEY_RKS::");
+		return 1;
+	}
+
+	EVP_CIPHER_CTX_init(&dp);
+
+	if(!(EVP_DecryptInit_ex(&dp,EVP_aes_256_cbc(), NULL,s_key,salt_s)))
+        {   
+		perror("\n ERROR,DECRYPT_INIT_RKS::");
+                return 1;
+        }   
+
+	if(!EVP_DecryptUpdate(&dp,outbuf,&outlen,key_e,48))
+        {
+                perror("\n Error,DECRYPT_UPDATE:");
+                return 1;
+        }
+	
+	dbug_p("OUTLEN_RKS_DEC_UPDATE::%d::\n",outlen);
+
+	i=0;
+	while(i<outlen && i<32)
+	{
+		k[i] =outbuf[i];
+		++i;
+	}
+	dbug_p("I_COPY2K_1_RKS::%d::\n",i);
+
+	if(!EVP_DecryptFinal_ex(&dp,outbuf,&outlen))
+        {
+                perror("\n Error,DECRYPT_FINAL_RKS:");
+                return 1;
+        }
+	dbug_p("OUTLEN_DEC_FINAL_RKS::%d::",outlen);
+	
+	/* Handle FINAL HERE */
+
+	
+	close(ks);                                      /* Create a clean up function to be called in case of Failure that will del corup KS file */
+        EVP_CIPHER_CTX_cleanup(&dp);
+        dbug_p("READ KS SUCCESS\n");
 	return 0;
 }
