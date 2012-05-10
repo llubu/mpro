@@ -26,8 +26,8 @@ int main()					/* Takes in input the file to be encrypted */
 	unsigned int pwd_len=0;
 	int in,out,i=0,ncaps=0,ndig=0,ch=0;
 	char ppath[256];
-	char enc_path[] ="/tmp/do_encr.txt";
-	char dec_path[] ="/tmp/do_dec.txt";
+	char enc_path[] ="/tmp/do_encr";
+	char dec_path[] ="/tmp/do_dec";
 
 	EVP_CIPHER_CTX en,de;
 	

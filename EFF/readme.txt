@@ -19,5 +19,5 @@ cipher_helper.c: v1.0 : ?? : Contains helper functions
 		4. 32 Bytes: of V
 		5. 48 Bytes: of E
 		read_keystore() reads this data from Keystore. 
- 
+05-11-2012 :: Now handles all file types (tested with pdf,jpg,docx,xlsx,pptx *decrypted files working fine on windows also*) 
 
