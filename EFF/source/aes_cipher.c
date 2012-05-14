@@ -82,7 +82,7 @@ int aes_init(unsigned char* pwd,unsigned int pwd_len,EVP_CIPHER_CTX *e_ctx, EVP_
 		break;			/* Case 2 ENDS */
 
 		default:
-			dbug_p("INCORRECT FLAG IN DEC_INIT\n");
+			dbug_p("INCORRECT FLAG IN AES_INIT\n");
 			return 1;	     	 				
 		break;
 	}
