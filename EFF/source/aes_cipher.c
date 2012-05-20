@@ -1,6 +1,7 @@
-/*** This file contains function aes_encrypt() : aes_decrypt() : aes_init() 
-*@author dZONE
-*ver 1.0 DATE 05-02-2012  05-08-2012 ***/
+/* This file contains function aes_encrypt() : aes_decrypt() : aes_init() 
+*  @author dZONE
+*  ver 1.0 DATE 05-02-2012  05-08-2012 
+*/
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -28,40 +29,61 @@ int aes_init(unsigned char* pwd,unsigned int pwd_len,EVP_CIPHER_CTX *e_ctx, EVP_
         int i, rounds =5;                                       /* increase rounds */
         unsigned char key[32], iv[32], salt[8],data[32];
 	int data_len = 32;
+
 	switch(flag)
 	{    	
 		case 1:		/* ENCRYPTION INIT */
-			if(!(RAND_bytes(salt,8))) 	/* Writes cryptographically secure random bytes in salt[] ????check for no of bytes used */
+			if(key_flag ==1)
 			{
-				perror("\n ERROR,SALT::");
-				return 1;
-			}
-			if(!(RAND_bytes(data,32)))
-			{
-				perror("\n ERROR,DATA::");
-				return 1;
-			}
+				if(!(RAND_bytes(salt,8))) 	/* Writes cryptographically secure random bytes in salt[] ????check for no of bytes used */
+				{
+					perror("\n ERROR,SALT::");
+					return 1;
+				}
+				if(!(RAND_bytes(data,32)))
+				{
+					perror("\n ERROR,DATA::");
+					return 1;
+				}
 
-        		i = EVP_BytesToKey(EVP_aes_256_cbc(),EVP_sha1(),salt,data,data_len,rounds,key,iv);
-		        if(i != 32) 									/* Key len should be 256bits*/
-        		{	   
-                		dbug_p("ERROR,Incorrect key size generated:%d:\n",i);
-	                	return 1; 
-        		}   
+        			i = EVP_BytesToKey(EVP_aes_256_cbc(),EVP_sha1(),salt,data,data_len,rounds,key,iv);
+		        	if(i != 32) 									/* Key len should be 256bits*/
+	        		{	   
+        	        		dbug_p("ERROR,Incorrect key size generated:%d:\n",i);
+	        	        	return 1; 
+        			}   
     
-        		EVP_CIPHER_CTX_init(e_ctx);
-//			dbug_p("\n KEY::%s::IV::%s::SALT::%s::\n",key,iv,salt);   
-  	    	        if(!(EVP_EncryptInit_ex(e_ctx, EVP_aes_256_cbc(), NULL, key, iv)))
-			{
-				perror("\n ERROR,ENCRYPT_INIT::");
-				return 1;
+	        		EVP_CIPHER_CTX_init(e_ctx);
+//				dbug_p("\n KEY::%s::IV::%s::SALT::%s::\n",key,iv,salt);   
+  	    		        if(!(EVP_EncryptInit_ex(e_ctx, EVP_aes_256_cbc(), NULL, key, iv)))
+				{
+					perror("\n ERROR,ENCRYPT_INIT::");
+					return 1;
+				}
+				
+				if((creat_keystore(pwd,pwd_len,key,iv)))                              /* Creating keystore */
+	        		{   
+        	               		dbug_p("ERROR,cant creat KeyStore\n");
+                 	  	        return 1;
+	        	       	}
 			}
+			else
+			if(key_flag == 2)
+			{
+				if((read_keystore(pwd,pwd_len,key,iv)))
+				{
+					dbug_p("ERROR,in reading REUSE_KS_AES_INIT\n");
+					return 1;
+				}
 
-			if((creat_keystore(pwd,pwd_len,key,iv)))                              /* Creating keystore */
-	                {   
-        	                dbug_p("ERROR,cant creat KeyStore\n");
-                	        return 1;
-	                }   
+				EVP_CIPHER_CTX_init(e_ctx);
+				if(!(EVP_EncryptInit_ex(e_ctx, EVP_aes_256_cbc(), NULL, key, iv)))
+                                {   
+                                        perror("\n ERROR,ENCRYPT_INIT_RESUSE_KS::");
+                                        return 1;
+                                }   
+	
+			}   
 		break;			/* Case 1 ENDS */
 	
 

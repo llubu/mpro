@@ -23,17 +23,18 @@ int cipher_dir(unsigned char *in_path,EVP_CIPHER_CTX *di_tx,int ci_flag)
 		struct dirent *r;
 		struct stat chk;
 		char *name = NULL;						/* File name */
-		char *f_path[4096];
+		unsigned char f_path[4096];
 		int i=0,j=0,b=0;
 
 		while(in_path[i] != '\0' && i<4096)
 		{
-			f_path[i] = in_path[i++];
+			f_path[i] = in_path[i];
+			++i;
 		}
 		f_path[i++] = '/';
 		dbug_p("PATH is:%s:\n",in_path);
 	
-		if((d=opendir(in_path)) == NULL)
+		if((d=opendir((char *)in_path)) == NULL)
 		{
 			perror("\n ERROR,Opendir_C_DIR::");
 			return 1;
@@ -57,12 +58,12 @@ int cipher_dir(unsigned char *in_path,EVP_CIPHER_CTX *di_tx,int ci_flag)
 			}
 			else { printf("\n ERROR,PATH TOO LONG_C_DIR\n"); return 1;}
 
-			if(stat(f_path,&chk) !=0)				/* ?? improve handling nested directories */
+			if(stat((char *)f_path,&chk) !=0)				/* ?? improve handling nested directories */
 			{
 				perror("\n ERROR,stat_C_DIR::");
 				return 1;
 			}
-			if(S_IFDIR == (in.st_mode & S_IFMT))         		/* Checking for directory or file */
+			if(S_IFDIR == (chk.st_mode & S_IFMT))         		/* Checking for directory or file */
 			{
 				if(cipher_dir(f_path,di_tx,ci_flag))
 				{

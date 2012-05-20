@@ -1,10 +1,11 @@
-This project aims to make a free(gnu) type software LINUX which can encrypt decrypt files and folder.
+This project aims to make a free(gnu) software for LINUX which can encrypt decrypt files and folder.
 This document will record all changes and progress of the project.
 
 /**** Project FF_NB *****/
 @ author dZONE Date : 04-25-2012
-***COPYRIGHT*** NO PART OF THE CODE CAN BE USED/COPIED FOR ANY MEANS WITHOUT PRIOR PERMISSION OF AUTHOR ***
-
+                			  ***COPYRIGHT*** 
+NO PART OF THE CODE CAN BE USED/COPIED FOR ANY MEANS WITHOUT PRIOR PERMISSION OF AUTHOR UNTILL IT IS COMPLETED ***
+ 				 ****abhiroop.dabral@gmail.com****
 
 basicxor.c v1.0 done: Uses simple xor operation on each byte of data (04-25-2012)
 aes2.c v1.0: done : Uses Openssl crypto API to implement AES256CBC symetric cipher (05-01-2012)
@@ -19,5 +20,6 @@ cipher_helper.c: v1.0 : ?? : Contains helper functions
 		4. 32 Bytes: of V
 		5. 48 Bytes: of E
 		read_keystore() reads this data from Keystore. 
-05-11-2012 :: Now handles all file types (tested with pdf,jpg,docx,xlsx,pptx *decrypted files working fine on windows also*) 
-
+05-11-2012 :: Now handles all file types (tested with pdf,jpg,docx,xlsx,pptx *decrypted files working fine on windows also*).
+05-18-2012 :: The code now handles crypt operations on directories also.(currently calls file module recurcivly need to implement threads for efficienny).
+05-20-2012 :: The code now handles the *REUSE* of existing keystore for crypt operations.

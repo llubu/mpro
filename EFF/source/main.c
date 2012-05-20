@@ -1,11 +1,11 @@
 /* This is the main() for CrypTIt project
 *  @author dZONE
-*  DATE:(C,M) 05-13-2012	05-14-2012
+*  DATE:(C,M) 05-13-2012	05-18-2012
 *
 *	This function takes all input from the user which are: 
 *	1. Password
 *	2. Path of the file or Directory to be encrypted/Decrypted
-*	3. Choich for Encryption or Decryption
+*	3. Choice for Encryption or Decryption
 *
 *	Also InIt & clear the Cipher Context
 */
@@ -25,21 +25,22 @@
 # include "cipher_dir.h"
 # include "debug.h"
 
+int key_flag;
 
 int main()
 {
-	unsigned char in_path[4096];				/* MAX_PATH defined in /usr/include/linux/limits.h */	
-	unsigned char pwd[256];					/* ?? There is no MAX PWD LEN IN LINUX */
+	unsigned char in_path[4096];					/* MAX_PATH defined in /usr/include/linux/limits.h */	
+	unsigned char pwd[256];						/* ?? There is no MAX PWD LEN IN LINUX */
 	int ci_flag =0,dir_flag=0;				/* Encryption 1 Decryption 2 */  /* DIR: 1 FILE: 0*/ 
 	unsigned int i,npwd=0,upwd=0,lenpwd=0;
-	struct termios old,new;					/*  Structure to hold old and new terminal settings */
+	struct termios old,new;						/*  Structure to hold old and new terminal settings */
 	struct stat in;
 	char ch;
 	EVP_CIPHER_CTX en,de;				
-
+	
 	printf("\n Enter the path(absolute) of the file/directory\n (e.g. /home/user/plain.txt) \n");
 
-	if((fgets(in_path,4096,stdin)) == NULL)				
+	if((fgets((char *)in_path,4096,stdin)) == NULL)				
 	{
 		perror("\n ERROR,fgets_INPATH_MAIN::");
 		return 1;
@@ -54,7 +55,7 @@ int main()
 	}
 	dbug_p("PATH::%s::\n",in_path);
 
-	if(stat(in_path,&in) != 0)
+	if(stat((char *)in_path,&in) != 0)
 	{
 		perror("\n ERROR,STAT_MAIN::");
 		return 1;
@@ -65,6 +66,12 @@ int main()
 	printf("\n Enter Choice 1: ENCRYPTION  2: DECRYPTION \n");
 	scanf("%d",&ci_flag);
 	if(ci_flag !=1 && ci_flag !=2) printf("\n Incorrect Choice Entered \n");
+
+	if(ci_flag ==1) 
+	{
+		printf("\n Enter 1 to create new keystore 2 to use existing keystore \n");
+		scanf("%d",&key_flag);
+	}	
 
 	while((ch = getchar()) != '\n');			/* truncate any newline if present in input buffer */
 
@@ -83,7 +90,7 @@ int main()
 	}
 
 	printf("\n Password \n");
-	if((fgets(pwd,256,stdin)) ==NULL)			/* Passowrd Input */
+	if((fgets((char *)pwd,256,stdin)) ==NULL)			/* Passowrd Input */
 	{
 		perror("\n ERROR,fgets_PWD_MAIN::");
 		return 1;
@@ -175,8 +182,13 @@ int main()
 		break;
 	}	
 
-	EVP_CIPHER_CTX_cleanup(&en);
-	EVP_CIPHER_CTX_cleanup(&de);
-
+	if(ci_flag ==1)
+	{
+		EVP_CIPHER_CTX_cleanup(&en);
+	}
+	if(ci_flag==2)
+	{
+		EVP_CIPHER_CTX_cleanup(&de);
+	}
 	return 0;						/* SUCCESS */
 }	

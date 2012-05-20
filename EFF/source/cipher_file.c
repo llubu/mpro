@@ -25,8 +25,9 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 	char enc_path[] ="/tmp/do_encr";
 	char dec_path[] ="/tmp/do_dec";
 	struct stat a;						/* Strores the original file/owner permission */
+	int in,out;	
 
-	if((in = open(in_path,O_RDONLY)) <0)			/* Opening the input file  */
+	if((in = open((char *)in_path,O_RDONLY)) <0)			/* Opening the input file  */
 	{
 		perror("\n ERROR,OPEN_INFILE_C_FILE::");
 		return 1;	
@@ -54,7 +55,7 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 			}
 			dbug_p("ENCRYPTED \n");
 												/* Replacing original file */
-			if(replace(enc_path,in_path))
+			if(replace(enc_path,(char *)in_path))
 			{
 				dbug_p("ERROR,REPLACING FILE \n");
 				return 1;
@@ -64,7 +65,7 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 				dbug_p("ERROR,CANT CLEAN \n");
 				return 1;
 			}	
-			if(file_perres(in_path,&a))							/* Restoring File permission */
+			if(file_perres((char *)in_path,&a))							/* Restoring File permission */
 			{
 				dbug_p("ERROR,in restoring file per EE\n");
 				return 1;
@@ -76,7 +77,7 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 	
 
 		case 2:		/* DECRYPTION CASE */
-			if((in =open(in_path,O_RDONLY))<0)							/* Opening encrypted file for decryption */
+			if((in =open((char *)in_path,O_RDONLY))<0)							/* Opening encrypted file for decryption */
 			{
 				perror("\n ERROR,opening encrypted file_C_FILE::");
 				return 1;
@@ -93,7 +94,7 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 			}
 			dbug_p("DECRYPTED \n");
 
-			if(replace(dec_path,in_path))								/* Replacing files */
+			if(replace(dec_path,(char *)in_path))								/* Replacing files */
 			{
 				dbug_p("ERROR,REPALING DEC FILE \n");
 				return 1;

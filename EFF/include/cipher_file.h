@@ -6,7 +6,6 @@
 #ifndef CIPHER_FILE_H_INCLUDE
 #define CIPHERFILE_H_INCLUDE
 
-
 int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag);
 
 #endif
