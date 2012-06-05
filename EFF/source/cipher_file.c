@@ -2,7 +2,7 @@
 *  1. main() directly for a single file when in_path points to a valid file
 *  2. cipher_dir() to encrypt files in a directory when in_path points to a valid directory
 *  @author dZONE
-*  DATE(C,M) 05-04-2012 05-15-2012 
+*  DATE(C,M) 05-04-2012 06-01-2012 
 */
 
 # include <stdio.h>
@@ -41,7 +41,7 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 				perror("\n ERROR,CANT create temp file_C_FILE::");
 				return 1;
 			}
-
+			
 			if(fstat(in,&a) == -1)								/* Fetching file permission for file opened with fd *in* */
 			{
 				perror("\n ERROR,CANT COPY FILE PERMISSION_C_FILE::");
@@ -54,25 +54,30 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 				return 1;
 			}
 			dbug_p("ENCRYPTED \n");
-												/* Replacing original file */
+
+			close(in);
+			close(out);
+								/* Replacing original file */
 			if(replace(enc_path,(char *)in_path))
 			{
 				dbug_p("ERROR,REPLACING FILE \n");
 				return 1;
 			}
-			if(cleanup(enc_path))								/* Cleaning all tmp files created */
-			{
-				dbug_p("ERROR,CANT CLEAN \n");
-				return 1;
-			}	
+
+			if((unlink(enc_path)) <0) 
+                        {   
+                                perror("\n ERROR, Cant unink enc file_C_FILE::");
+                                return 1;
+                        }    
+
 			if(file_perres((char *)in_path,&a))							/* Restoring File permission */
 			{
 				dbug_p("ERROR,in restoring file per EE\n");
 				return 1;
 			}
 		
-			close(in);
-			close(out);
+//			close(in);
+//			close(out);
 		break;							/* Case 1 ENDS */	
 	
 
@@ -87,6 +92,7 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 				perror("\n ERROR,craeting dec file_C_FILE::");
 				return 1;
 			}
+
 			if(aes_decrypt(tx,in,out))								/* Decrypting */
 			{
 				dbug_p("ERROR,decrypting file_C_FILE\n");
@@ -94,18 +100,23 @@ int cipher_file(unsigned char *in_path,EVP_CIPHER_CTX *tx,int ci_flag)
 			}
 			dbug_p("DECRYPTED \n");
 
-			if(replace(dec_path,(char *)in_path))								/* Replacing files */
-			{
-				dbug_p("ERROR,REPALING DEC FILE \n");
-				return 1;
-			}
-			if(cleanup(dec_path))									/* Deleting all tmp files created */
-			{
-				dbug_p("ERROR,CANT CLEAN \n");
-				return 1;
-			}
 			close(in);
 			close(out);
+
+			if(replace(dec_path,(char *)in_path))								/* Replacing files */
+			{
+				dbug_p("ERROR,REPLACING DEC FILE \n");
+				return 1;
+			}
+
+			if((unlink(dec_path)) <0) 
+                        {   
+                                 perror("\n ERROR, Cant unink enc file_C_FILE::");
+                                 return 1;
+                        }    
+
+//			close(in);
+//			close(out);
 		break;				/* CASE 2 ENDS */
 
 		default:			/* Default case for the incorrect choice entered */	

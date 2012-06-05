@@ -15,37 +15,49 @@ v1.0 */
 
 int replace(char * source,char * dest)			/* Replaces the char* source file with char *dest file  ***improve child process handling */
 {
-        int status;
-        pid_t pid;
+        int d=0,s=0;
+        int inlen=0;
+	char *rep_buf=NULL;
 
         if(source == NULL || dest == NULL)
         {   
                 dbug_p("ERROR, Corrupted arguments to func \n");
                 return 1;
         }   
-
-        pid = fork();
-        if(pid <0) 
-        {   
-                perror("\n ERROR,Cant fork::");
-                return 1;
-        }   
-        else
-        if(pid ==0)
-        {   
-                if((execl("/bin/cp","/bin/cp",source,dest,(char*) 0)) <0)
-		{
-			perror("\n ERROR, CPEXECL::");
-			return 1; 
-		}
+	printf("\n INSIDE REPLACE \n");
+	if((d= open(dest,O_CREAT|O_RDWR|O_TRUNC,0400|0200)) <0)
+	{
+		perror("\n ERROR,Cant create file in dest to replace::");
+		return 1;
 	}
-	else{
-		wait(&status);
-		dbug_p("STATUS:%d:\n",status);
-	}   
-        return 0;
-}
+        
+	dbug_p("DEST PATH:%s:\n",dest);
+	dbug_p("SOURCE PATH:%s:\n",source);
 
+	if((s= open(source,O_RDONLY)) <0)
+	{
+		perror("\n ERROR, Cant open temp file to read::");
+		return 1;
+	}
+	
+	if((rep_buf=malloc(1024 * sizeof(char))) == NULL)
+	{
+		perror("\n Cant Allocate Memory for rep buf::");
+		return 1;
+	}
+ 
+	while((inlen= read(s,rep_buf,1024)) >0)
+	{
+		if((write(d,rep_buf,inlen)) != inlen)
+		{
+			perror("\n ERROR, Cant write to replace::");
+			return 1;
+		}
+		inlen=0;
+	}	  
+	free(rep_buf);      
+	return 0;
+}
 
 /************************************** restore original file permission ***************************************************/
 /* Called two times once after copying the encrypted file and then after decrypted file */

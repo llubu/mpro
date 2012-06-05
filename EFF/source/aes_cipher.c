@@ -115,8 +115,8 @@ int aes_init(unsigned char* pwd,unsigned int pwd_len,EVP_CIPHER_CTX *e_ctx, EVP_
 
 int aes_encrypt(EVP_CIPHER_CTX *e,int in,int out)						/* Returns 0: SUCCESS 1: ERROR */
 {
-        char inbuf [SIZE];
-        char outbuf[SIZE+AES_BLOCK_SIZE];
+	char inbuf [SIZE]={0};
+        char outbuf[SIZE+AES_BLOCK_SIZE]={0};
         int inlen = 0,flen=0,outlen =0;						
 	
         if(!EVP_EncryptInit_ex(e, NULL, NULL, NULL, NULL))                              /* allows reusing of e for multiple cipher cycles CHECK ????*/
@@ -159,8 +159,8 @@ int aes_encrypt(EVP_CIPHER_CTX *e,int in,int out)						/* Returns 0: SUCCESS 1: 
 int aes_decrypt(EVP_CIPHER_CTX *d,int in,int out)				/* returns 0: SUCCESS 1: ERROR */
 {
         int inlen=0,flen=0,outlen=0;
-        char inbuf[SIZE+AES_BLOCK_SIZE];                                /****** CHECK ???? ****/
-        char outbuf[SIZE+AES_BLOCK_SIZE];
+        char inbuf[SIZE+AES_BLOCK_SIZE]={0};                                /****** CHECK ???? ****/
+        char outbuf[SIZE+AES_BLOCK_SIZE]={0};
 	
         if(!EVP_DecryptInit_ex(d, NULL, NULL, NULL, NULL))
         {   

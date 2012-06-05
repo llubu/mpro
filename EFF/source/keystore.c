@@ -22,9 +22,9 @@
 
 int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsigned char *v)
 {
-	int ks,i,j,wr,outlen=0;
-	unsigned char uname[256],salt[32],pkey[32],outbuf[SIZE+AES_BLOCK_SIZE],md[SHA256_DIGEST_LENGTH];
-	unsigned char psalt[64],salt_phash[32];			/* password combined with salt */
+	int ks=0,i=0,j=0,wr=0,outlen=0;
+	unsigned char uname[256]={0},salt[32]={0},pkey[32]={0},outbuf[SIZE+AES_BLOCK_SIZE]={0},md[SHA256_DIGEST_LENGTH]={0};
+	unsigned char psalt[64]={0},salt_phash[32]={0};			/* password combined with salt */
 	unsigned char path[256] = "/home/" ;
 	EVP_CIPHER_CTX p;
 	SHA256_CTX sh;				/* For password hash */
@@ -58,7 +58,7 @@ int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsi
 	}
 	dbug_p("FINAL PATH ::%s:: \n",path);
 	
-	if((ks=open((const char *)path,O_CREAT|O_RDWR,S_IREAD|S_IWRITE))== -1)
+	if((ks=open((const char *)path,O_CREAT|O_RDWR|O_TRUNC,S_IREAD|S_IWRITE))== -1)
 	{
 		perror("\n ERROR,OPEN()::");
 		return 1;
@@ -216,9 +216,9 @@ int creat_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char *k,unsi
 
 int read_keystore(unsigned char *pwd,unsigned int pwd_len,unsigned char* k, unsigned char *v)
 {
-	int ks,i,j,rd=0,outlen=0;
-	unsigned char uname[256],s_key[32],md[SHA256_DIGEST_LENGTH],r_phash[SHA256_DIGEST_LENGTH],salt_s[32],salt_h[32],psalt[64];
-	unsigned char key_e[48],outbuf[SIZE+AES_BLOCK_SIZE];
+	int ks=0,i=0,j=0,rd=0,outlen=0;
+	unsigned char uname[256]={0},s_key[32]={0},md[SHA256_DIGEST_LENGTH]={0},r_phash[SHA256_DIGEST_LENGTH]={0},salt_s[32]={0},salt_h[32]={0},psalt[64]={0};
+	unsigned char key_e[48]={0},outbuf[SIZE+AES_BLOCK_SIZE]={0};
 	char path[256]= "/home/";	
 
 	EVP_CIPHER_CTX dp;
