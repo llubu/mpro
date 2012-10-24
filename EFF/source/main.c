@@ -31,7 +31,7 @@ int main()
 {
 	unsigned char in_path[4096];					/* MAX_PATH defined in /usr/include/linux/limits.h */	
 	unsigned char pwd[256];						/* ?? There is no MAX PWD LEN IN LINUX */
-	int ci_flag =0,dir_flag=0;				/* Encryption 1 Decryption 2 */  /* DIR: 1 FILE: 0*/ 
+	int ci_flag =0,dir_flag=0;					/* Encryption 1 Decryption 2 */  /* DIR: 1 FILE: 0*/ 
 	unsigned int i,npwd=0,upwd=0,lenpwd=0;
 	struct termios old,new;						/*  Structure to hold old and new terminal settings */
 	struct stat in;
