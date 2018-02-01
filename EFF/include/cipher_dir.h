@@ -1,11 +1,5 @@
-/* Header file for cipher_dir() 
-*  @author dZONE
-*  DATE(C,M) 05-15-2012		05-15-2012
-*/
-
-
-#ifndef CIPHER_DIR_H_INCLUDE
-#define CIPHER_DIR_H_INCLUDE
+#ifndef __CIPHER_DIR_H__
+#define __CIPHER_DIR_H__
 
 struct thread_arg
 {
@@ -14,8 +8,8 @@ struct thread_arg
 	int ci_flag;
 };
 
-int cipher_dir(unsigned char *in_path,EVP_CIPHER_CTX *di_tx,int ci_flag);
-void * cipher_dir2(void * st);							/* used for POSIX thread handling of Directory */
+int cipher_dir(unsigned char* in_path, EVP_CIPHER_CTX* di_tx, int ci_flag);
+void* cipher_dir2(void* st);
 
 #endif
 

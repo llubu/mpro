@@ -6,7 +6,7 @@ SDIR = /home/abhi/mpro/EFF/source
 
 LIBS = lcrypto -lpthread
 
-SBU: main.o cipher_file.o cipher_dir2.o cipher_dir3.o cipher_helper.o aes_cipher.o keystore.o 
+SBU: main.o cipher_file.o cipher_dir2.o cipher_dir3.o cipher_helper.o aes_cipher.o keystore.o
 	$(CC) $(CFLAGS) main.o cipher_file.o cipher_dir2.o cipher_dir3.o cipher_helper.o aes_cipher.o keystore.o -$(LIBS) -I$(IDIR) -o SBU
 
 main.o: main.c
@@ -32,3 +32,4 @@ keystore.o: keystore.c
 
 clean:
 	rm SBU *.o
+
