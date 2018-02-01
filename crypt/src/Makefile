@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -ggdb -Wall -Werror -DDEBUG
 
 IDIR = /home/abhi/mpro/EFF/include
-SDIR = /home/abhi/mpro/EFF/source
+SDIR = /home/abhi/mpro/EFF/src
 
 LIBS = lcrypto -lpthread
 
